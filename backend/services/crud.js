@@ -2,11 +2,16 @@ const pgp = require('pg-promise')({});
 const db = pgp('postgres://localhost/blog');
 
 
-const readAll = (table) =>{
-    return db.any(`SELECT * FROM ${table}`, {});
+const readAll = (table, obj) =>{
+    const keys = Object.keys(obj);
+    const filterStr = keys.map(key => `${key} = $[${key}]`).join(' AND ');
+    return db.any(`SELECT * FROM ${table} WHERE ${filterStr}`, obj);
 }
 
-const readOne = (table, id) =>{
+const readUser = (table, id) =>{
+    if (typeof id === 'string'){
+        return db.one(`SELECT * FROM ${table} WHERE username = $[username]`, {username: id})
+    }
     return db.one(`SELECT * FROM ${table} WHERE id = $[id]`, {id});
 }
 
@@ -51,4 +56,4 @@ const delete_ = (table, id) =>{
 }
 
 
-module.exports = {readAll, readOne, create, update, delete_};
+module.exports = {readAll, readUser, create, update, delete_};
