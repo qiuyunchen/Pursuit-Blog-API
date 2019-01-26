@@ -6,12 +6,20 @@ const uPriRouter = express.Router();
 uPriRouter.put('/:user_id', (req, res)=>{
     const id = parseInt(req.params.user_id);
     req.body.id = id;
-    
-    bcrypt.hash(req.body.password, 10)
-        .then( encryptedPW =>{
-            req.body.password = encryptedPW;
-            return readUser('users', id)
-        })
+
+    const p1 = bcrypt.hash(req.body.password, 10)
+                    .then( encryptedPW =>{
+                        req.body.password = encryptedPW;
+                        return readUser('users', id);
+                    })
+                    .catch(e =>{
+                        console.log('When user is not updating password, expected error msg: ', e.message);
+                    })
+    const p2 = readUser('users', id);
+
+    const pStart = (req.body.password) ? p1 : p2;
+
+    pStart
         .then(user =>{
             const storedToken = user.token;
             if (req.body.token === storedToken){
@@ -24,7 +32,7 @@ uPriRouter.put('/:user_id', (req, res)=>{
             if (result.rowCount === 1){
                 res.json({success: `User ID ${id} successfully updated.`});
             } else {
-                res.json({Error: 'Failed to update.'});
+                res.json({Error: 'Nothing updated'});
             }
         })
         .catch(e =>{
