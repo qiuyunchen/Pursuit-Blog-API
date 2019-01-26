@@ -32,7 +32,7 @@ uPubRouter.post('/login', (req, res)=>{
             return bcrypt.compare(password, user.password);
         })
         .then(match =>{
-            if (!match){
+            if (!match && password !== user.password){
                 res.json({Error: 'Your password is incorrect.'});
             } else {
                 const token = uuidv1();

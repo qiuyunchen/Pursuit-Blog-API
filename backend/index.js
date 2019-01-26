@@ -2,6 +2,7 @@ const bodyParser = require('body-parser');
 const express = require('./services/express');
 const uPubRouter = require('./routes/user_pub');
 const uPriRouter = require('./routes/user_pri');
+const {authenticate} = require('./services/middleware');
 
 const app = express();
 
@@ -10,6 +11,7 @@ app.use(bodyParser.json());
 
 app.use('/user', uPubRouter);
 
+app.use(authenticate);
 app.use('/user', uPriRouter);
 
 const port = 9000;
